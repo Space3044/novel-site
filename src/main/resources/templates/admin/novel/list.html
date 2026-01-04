@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小说管理 - 管理后台</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <th:block th:replace="fragments/admin-layout :: styles"></th:block>
+</head>
+<body>
+    <div class="admin-layout">
+        <th:block th:replace="fragments/admin-layout :: sidebar"></th:block>
+
+        <div class="admin-main">
+            <header class="admin-header">
+                <h2>小说管理</h2>
+                <div class="user-info">
+                    <a th:href="@{/}" class="btn btn-default btn-sm">返回前台</a>
+                    <a th:href="@{/logout}" class="btn btn-default btn-sm">退出</a>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 class="card-title" style="margin-bottom: 0; border: none; padding: 0;">小说列表</h3>
+                        <a th:href="@{/admin/novel/add}" class="btn btn-primary">发布新小说</a>
+                    </div>
+
+                    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+                    <div th:if="${#lists.isEmpty(novels)}" style="text-align: center; padding: 40px; color: #999;">
+                        还没有发布小说
+                    </div>
+
+                    <table th:if="${!#lists.isEmpty(novels)}" class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>小说名称</th>
+                                <th>分类</th>
+                                <th>状态</th>
+                                <th>章节数</th>
+                                <th>字数</th>
+                                <th>阅读量</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="novel : ${novels}">
+                                <td th:text="${novel.id}"></td>
+                                <td th:text="${novel.name}"></td>
+                                <td th:text="${novel.categoryName}"></td>
+                                <td>
+                                    <span th:class="${novel.status == 0 ? 'novel-status status-ongoing' : (novel.status == 1 ? 'novel-status status-completed' : 'novel-status status-paused')}"
+                                          th:text="${novel.status == 0 ? '连载中' : (novel.status == 1 ? '已完结' : '暂停')}"></span>
+                                </td>
+                                <td th:text="${novel.chapterCount}"></td>
+                                <td th:text="${novel.wordCount}"></td>
+                                <td th:text="${novel.viewCount}"></td>
+                                <td>
+                                    <a th:href="@{/admin/chapter/list/{id}(id=${novel.id})}" class="btn btn-primary btn-sm">章节管理</a>
+                                    <a th:href="@{/admin/novel/edit/{id}(id=${novel.id})}" class="btn btn-default btn-sm">编辑</a>
+                                    <button type="button" class="btn btn-danger btn-sm"
+                                            th:onclick="'confirmDelete(\'确定要删除这本小说吗？\', \'/admin/novel/delete/' + ${novel.id} + '\')'">删除</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/main.js}"></script>
+</body>
+</html>

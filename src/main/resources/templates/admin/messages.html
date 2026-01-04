@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>留言管理 - 管理后台</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <th:block th:replace="fragments/admin-layout :: styles"></th:block>
+</head>
+<body>
+    <div class="admin-layout">
+        <th:block th:replace="fragments/admin-layout :: sidebar"></th:block>
+
+        <div class="admin-main">
+            <header class="admin-header">
+                <h2>留言管理</h2>
+                <div class="user-info">
+                    <a th:href="@{/}" class="btn btn-default btn-sm">返回前台</a>
+                    <a th:href="@{/logout}" class="btn btn-default btn-sm">退出</a>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <div class="card">
+                    <h3 class="card-title">读者留言</h3>
+
+                    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+                    <div th:if="${#lists.isEmpty(messages)}" style="text-align: center; padding: 40px; color: #999;">
+                        暂无留言
+                    </div>
+
+                    <div th:each="message : ${messages}" class="comment-item" style="border: 1px solid #f0f0f0; margin-bottom: 15px; border-radius: 4px;">
+                        <div class="comment-header">
+                            <span class="comment-author" th:text="${message.readerName != null} ? ${message.readerName} : '匿名用户'"></span>
+                            <span class="comment-time" th:text="${#temporals.format(message.createTime, 'yyyy-MM-dd HH:mm')}"></span>
+                        </div>
+                        <p class="comment-content" th:text="${message.content}"></p>
+
+                        <th:block th:if="${message.replyContent != null}">
+                            <div style="margin-top: 10px; padding: 10px; background: #f9f9f9; border-radius: 4px;">
+                                <div class="comment-header">
+                                    <span class="comment-author" style="color: #667eea;">我的回复</span>
+                                    <span class="comment-time" th:text="${message.replyTime != null} ? ${#temporals.format(message.replyTime, 'yyyy-MM-dd HH:mm')} : ''"></span>
+                                </div>
+                                <p class="comment-content" th:text="${message.replyContent}"></p>
+                            </div>
+                        </th:block>
+
+                        <th:block th:if="${message.replyContent == null}">
+                            <form th:action="@{/admin/message/reply/{id}(id=${message.id})}" method="post"
+                                  style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #f0f0f0;">
+                                <div class="form-group" style="margin-bottom: 10px;">
+                                    <textarea name="replyContent" class="form-control" rows="2"
+                                              placeholder="输入回复内容..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-sm">回复</button>
+                            </form>
+                        </th:block>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发布小说 - 管理后台</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <th:block th:replace="fragments/admin-layout :: styles"></th:block>
+</head>
+<body>
+    <div class="admin-layout">
+        <th:block th:replace="fragments/admin-layout :: sidebar"></th:block>
+
+        <div class="admin-main">
+            <header class="admin-header">
+                <h2>发布新小说</h2>
+                <div class="user-info">
+                    <a th:href="@{/admin/novel/list}" class="btn btn-default btn-sm">返回列表</a>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <div class="card" style="max-width: 800px;">
+                    <form th:action="@{/admin/novel/add}" method="post" id="novelForm">
+                        <div class="form-group">
+                            <label>小说名称 *</label>
+                            <input type="text" name="name" class="form-control" required placeholder="请输入小说名称">
+                        </div>
+
+                        <div class="form-group">
+                            <label>分类 *</label>
+                            <div style="display: flex; gap: 10px;">
+                                <select name="categoryId" id="categorySelect" class="form-control" required style="flex: 1;">
+                                    <option value="">请选择分类</option>
+                                    <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
+                                </select>
+                                <button type="button" class="btn btn-default" onclick="showAddCategoryModal()">新增分类</button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>封面图片</label>
+                            <div class="cover-upload-area" onclick="document.getElementById('coverFile').click()">
+                                <p>点击或拖拽上传封面图片</p>
+                                <p style="color: #999; font-size: 12px;">支持 JPG、PNG 格式，最大 10MB</p>
+                            </div>
+                            <input type="file" id="coverFile" accept="image/*" style="display: none;" onchange="uploadCover(this)">
+                            <input type="hidden" name="cover" id="coverUrl">
+                            <img id="coverPreview" class="cover-preview" alt="封面预览" style="display: none;">
+                            <p style="margin-top: 5px; color: #999; font-size: 12px;">或输入图片URL：</p>
+                            <input type="text" id="coverUrlInput" class="form-control" placeholder="https://example.com/cover.jpg" onchange="previewCoverUrl(this.value)">
+                        </div>
+
+                        <div class="form-group">
+                            <label>小说简介</label>
+                            <textarea name="description" class="form-control" rows="5" placeholder="请输入小说简介"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">发布小说</button>
+                            <a th:href="@{/admin/novel/list}" class="btn btn-default">取消</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增分类弹窗 -->
+    <div id="addCategoryModal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 20px;">新增分类</h3>
+            <div class="form-group">
+                <label>分类名称 *</label>
+                <input type="text" id="newCategoryName" class="form-control" placeholder="请输入分类名称">
+            </div>
+            <div class="form-group">
+                <label>分类描述</label>
+                <input type="text" id="newCategoryDesc" class="form-control" placeholder="请输入分类描述（可选）">
+            </div>
+            <div style="text-align: right;">
+                <button type="button" class="btn btn-default" onclick="hideAddCategoryModal()">取消</button>
+                <button type="button" class="btn btn-primary" onclick="addCategory()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function uploadCover(input) {
+            if (input.files && input.files[0]) {
+                var formData = new FormData();
+                formData.append('file', input.files[0]);
+
+                fetch('/upload/image', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(data) {
+                    if (data.success) {
+                        document.getElementById('coverUrl').value = data.url;
+                        document.getElementById('coverUrlInput').value = data.url;
+                        document.getElementById('coverPreview').src = data.url;
+                        document.getElementById('coverPreview').style.display = 'block';
+                    } else {
+                        alert('上传失败: ' + data.message);
+                    }
+                })
+                .catch(function(error) {
+                    alert('上传失败: ' + error);
+                });
+            }
+        }
+
+        function previewCoverUrl(url) {
+            if (url) {
+                document.getElementById('coverUrl').value = url;
+                document.getElementById('coverPreview').src = url;
+                document.getElementById('coverPreview').style.display = 'block';
+            } else {
+                document.getElementById('coverPreview').style.display = 'none';
+            }
+        }
+
+        function showAddCategoryModal() {
+            document.getElementById('addCategoryModal').classList.add('show');
+        }
+
+        function hideAddCategoryModal() {
+            document.getElementById('addCategoryModal').classList.remove('show');
+            document.getElementById('newCategoryName').value = '';
+            document.getElementById('newCategoryDesc').value = '';
+        }
+
+        function addCategory() {
+            var name = document.getElementById('newCategoryName').value;
+            var description = document.getElementById('newCategoryDesc').value;
+
+            if (!name) {
+                alert('请输入分类名称');
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append('name', name);
+            formData.append('description', description);
+
+            fetch('/admin/category/add-ajax', {
+                method: 'POST',
+                body: formData
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
+                if (data.success) {
+                    var select = document.getElementById('categorySelect');
+                    var option = document.createElement('option');
+                    option.value = data.category.id;
+                    option.text = data.category.name;
+                    select.add(option);
+                    select.value = data.category.id;
+                    hideAddCategoryModal();
+                } else {
+                    alert('添加失败: ' + data.message);
+                }
+            })
+            .catch(function(error) {
+                alert('添加失败: ' + error);
+            });
+        }
+    </script>
+</body>
+</html>

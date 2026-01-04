@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>章节管理 - 管理后台</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <th:block th:replace="fragments/admin-layout :: styles"></th:block>
+</head>
+<body>
+    <div class="admin-layout">
+        <th:block th:replace="fragments/admin-layout :: sidebar"></th:block>
+
+        <div class="admin-main">
+            <header class="admin-header">
+                <h2>章节管理 - <span th:text="${novel.name}"></span></h2>
+                <div class="user-info">
+                    <a th:href="@{/admin/novel/list}" class="btn btn-default btn-sm">返回小说列表</a>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 class="card-title" style="margin-bottom: 0; border: none; padding: 0;">
+                            章节列表 (共 <span th:text="${#lists.size(chapters)}"></span> 章)
+                        </h3>
+                        <a th:href="@{/admin/chapter/add/{novelId}(novelId=${novel.id})}" class="btn btn-primary">添加新章节</a>
+                    </div>
+
+                    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+                    <div th:if="${#lists.isEmpty(chapters)}" style="text-align: center; padding: 40px; color: #999;">
+                        还没有添加章节，<a th:href="@{/admin/chapter/add/{novelId}(novelId=${novel.id})}">立即添加</a>
+                    </div>
+
+                    <table th:if="${!#lists.isEmpty(chapters)}" class="table">
+                        <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>章节标题</th>
+                                <th>字数</th>
+                                <th>更新时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="chapter : ${chapters}">
+                                <td th:text="'第' + ${chapter.chapterOrder} + '章'"></td>
+                                <td th:text="${chapter.title}"></td>
+                                <td th:text="${chapter.wordCount}"></td>
+                                <td th:text="${#temporals.format(chapter.updateTime, 'yyyy-MM-dd HH:mm')}"></td>
+                                <td>
+                                    <a th:href="@{/admin/chapter/edit/{id}(id=${chapter.id})}" class="btn btn-default btn-sm">编辑</a>
+                                    <button type="button" class="btn btn-danger btn-sm"
+                                            th:onclick="'confirmDelete(\'确定要删除这个章节吗？\', \'/admin/chapter/delete/' + ${chapter.id} + '\')'">删除</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/main.js}"></script>
+</body>
+</html>

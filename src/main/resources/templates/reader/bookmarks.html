@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的收藏 - 小说阅读网</title>
+    <link rel="stylesheet" th:href="@{/css/style.css?v=2}">
+</head>
+<body>
+    <th:block th:replace="fragments/layout :: header"></th:block>
+
+    <main class="main">
+        <div class="container">
+            <div class="card">
+                <h3 class="card-title">我的收藏</h3>
+
+                <div th:if="${#lists.isEmpty(bookmarks)}" style="text-align: center; padding: 40px; color: #999;">
+                    暂无收藏，去 <a th:href="@{/novel/list}">小说列表</a> 看看吧
+                </div>
+
+                <div class="novel-grid">
+                    <div th:each="bookmark : ${bookmarks}" class="novel-item">
+                        <div class="novel-cover" th:if="${bookmark.novel == null or bookmark.novel.cover == null or bookmark.novel.cover == ''}">
+                            <span th:text="${bookmark.novel != null and bookmark.novel.name != null} ? ${#strings.substring(bookmark.novel.name, 0, 1)} : '?'"></span>
+                        </div>
+                        <img th:if="${bookmark.novel != null and bookmark.novel.cover != null and bookmark.novel.cover != ''}"
+                             th:src="${bookmark.novel.cover}" alt="封面" class="novel-cover-img">
+                        <div class="novel-info">
+                            <a th:href="@{/novel/detail/{id}(id=${bookmark.novelId})}">
+                                <h4 class="novel-title" th:text="${bookmark.novel != null} ? ${bookmark.novel.name} : '未知小说'"></h4>
+                            </a>
+                            <p class="novel-meta" th:if="${bookmark.novel != null}">
+                                作者：<span th:text="${bookmark.novel.authorName}"></span>
+                            </p>
+                            <p class="novel-meta">
+                                收藏时间：<span th:text="${#temporals.format(bookmark.createTime, 'yyyy-MM-dd')}"></span>
+                            </p>
+                            <div style="margin-top: 10px;">
+                                <button type="button" class="btn btn-danger btn-sm"
+                                        th:onclick="'toggleBookmark(' + ${bookmark.novelId} + ', true)'">取消收藏</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script th:src="@{/js/main.js}"></script>
+</body>
+</html>

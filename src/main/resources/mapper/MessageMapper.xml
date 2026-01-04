@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.novelsite.mapper.MessageMapper">
+
+    <resultMap id="MessageResultMap" type="Message">
+        <id column="id" property="id"/>
+        <result column="reader_id" property="readerId"/>
+        <result column="author_id" property="authorId"/>
+        <result column="content" property="content"/>
+        <result column="reply_content" property="replyContent"/>
+        <result column="reply_time" property="replyTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="reader_name" property="readerName"/>
+        <result column="author_name" property="authorName"/>
+    </resultMap>
+
+    <sql id="selectWithJoin">
+        SELECT m.*, r.nickname as reader_name, a.name as author_name
+        FROM message m
+        LEFT JOIN reader r ON m.reader_id = r.id
+        LEFT JOIN author a ON m.author_id = a.id
+    </sql>
+
+    <select id="findById" resultMap="MessageResultMap">
+        <include refid="selectWithJoin"/>
+        WHERE m.id = #{id}
+    </select>
+
+    <select id="findAll" resultMap="MessageResultMap">
+        <include refid="selectWithJoin"/>
+        ORDER BY m.create_time DESC
+    </select>
+
+    <select id="findByReaderId" resultMap="MessageResultMap">
+        <include refid="selectWithJoin"/>
+        WHERE m.reader_id = #{readerId}
+        ORDER BY m.create_time DESC
+    </select>
+
+    <select id="findByAuthorId" resultMap="MessageResultMap">
+        <include refid="selectWithJoin"/>
+        WHERE m.author_id = #{authorId}
+        ORDER BY m.create_time DESC
+    </select>
+
+    <insert id="insert">
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            SELECT last_insert_rowid()
+        </selectKey>
+        INSERT INTO message (reader_id, author_id, content, create_time)
+        VALUES (#{readerId}, #{authorId}, #{content}, datetime('now'))
+    </insert>
+
+    <update id="reply">
+        UPDATE message SET
+            reply_content = #{replyContent},
+            reply_time = datetime('now')
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM message WHERE id = #{id}
+    </delete>
+
+</mapper>

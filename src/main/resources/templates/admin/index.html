@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理后台 - 小说阅读网</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <th:block th:replace="fragments/admin-layout :: styles"></th:block>
+</head>
+<body>
+    <div class="admin-layout">
+        <th:block th:replace="fragments/admin-layout :: sidebar"></th:block>
+
+        <div class="admin-main">
+            <header class="admin-header">
+                <h2>控制台</h2>
+                <div class="user-info">
+                    <span th:text="'作者：' + ${author.name}"></span>
+                    <a th:href="@{/}" class="btn btn-default btn-sm">返回前台</a>
+                    <a th:href="@{/logout}" class="btn btn-default btn-sm">退出</a>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <!-- 统计卡片 -->
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 20px;">
+                    <div class="card" style="text-align: center;">
+                        <h3 style="font-size: 36px; color: #1890ff;" th:text="${#lists.size(novels)}">0</h3>
+                        <p style="color: #999;">我的小说</p>
+                    </div>
+                    <div class="card" style="text-align: center;">
+                        <h3 style="font-size: 36px; color: #52c41a;" th:text="${totalChapters}">0</h3>
+                        <p style="color: #999;">总章节数</p>
+                    </div>
+                    <div class="card" style="text-align: center;">
+                        <h3 style="font-size: 36px; color: #faad14;" th:text="${totalViews}">0</h3>
+                        <p style="color: #999;">总阅读量</p>
+                    </div>
+                    <div class="card" style="text-align: center;">
+                        <h3 style="font-size: 36px; color: #722ed1;" th:text="${totalVotes}">0</h3>
+                        <p style="color: #999;">总票数</p>
+                    </div>
+                </div>
+
+                <!-- 小说列表 -->
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 class="card-title" style="margin-bottom: 0; border: none; padding: 0;">我的小说</h3>
+                        <a th:href="@{/admin/novel/add}" class="btn btn-primary">发布新小说</a>
+                    </div>
+
+                    <div th:if="${#lists.isEmpty(novels)}" style="text-align: center; padding: 40px; color: #999;">
+                        还没有发布小说，<a th:href="@{/admin/novel/add}">立即发布</a>
+                    </div>
+
+                    <table th:if="${!#lists.isEmpty(novels)}" class="table">
+                        <thead>
+                            <tr>
+                                <th>小说名称</th>
+                                <th>分类</th>
+                                <th>状态</th>
+                                <th>章节</th>
+                                <th>阅读</th>
+                                <th>投票</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="novel : ${novels}">
+                                <td th:text="${novel.name}"></td>
+                                <td th:text="${novel.categoryName}"></td>
+                                <td>
+                                    <span th:class="${novel.status == 0 ? 'novel-status status-ongoing' : (novel.status == 1 ? 'novel-status status-completed' : 'novel-status status-paused')}"
+                                          th:text="${novel.status == 0 ? '连载中' : (novel.status == 1 ? '已完结' : '暂停')}"></span>
+                                </td>
+                                <td th:text="${novel.chapterCount}"></td>
+                                <td th:text="${novel.viewCount}"></td>
+                                <td th:text="${novel.voteCount}"></td>
+                                <td>
+                                    <a th:href="@{/admin/chapter/list/{id}(id=${novel.id})}" class="btn btn-primary btn-sm">章节</a>
+                                    <a th:href="@{/admin/novel/edit/{id}(id=${novel.id})}" class="btn btn-default btn-sm">编辑</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

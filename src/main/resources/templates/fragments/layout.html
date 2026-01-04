@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Header Fragment -->
+<header th:fragment="header" class="header">
+    <div class="container">
+        <a href="/" class="logo">小说阅读网</a>
+        <nav class="nav">
+            <a th:href="@{/}" th:classappend="${currentPage == 'home'} ? 'active' : ''">首页</a>
+            <a th:href="@{/novel/list}" th:classappend="${currentPage == 'list'} ? 'active' : ''">小说列表</a>
+            <th:block th:if="${session.reader != null}">
+                <a th:href="@{/reader/bookmarks}" th:classappend="${currentPage == 'bookmarks'} ? 'active' : ''">我的收藏</a>
+                <a th:href="@{/reader/messages}" th:classappend="${currentPage == 'messages'} ? 'active' : ''">我的留言</a>
+            </th:block>
+        </nav>
+        <div class="user-info">
+            <th:block th:if="${session.reader != null}">
+                <span th:text="'欢迎，' + ${session.reader.nickname}"></span>
+                <a th:href="@{/reader/profile}" class="btn btn-default btn-sm">个人中心</a>
+                <a th:href="@{/logout}" class="btn btn-default btn-sm">退出</a>
+            </th:block>
+            <th:block th:if="${session.author != null}">
+                <span th:text="'作者：' + ${session.author.name}"></span>
+                <a th:href="@{/admin}" class="btn btn-default btn-sm">管理后台</a>
+                <a th:href="@{/logout}" class="btn btn-default btn-sm">退出</a>
+            </th:block>
+            <th:block th:if="${session.reader == null and session.author == null}">
+                <a th:href="@{/login}" class="btn btn-default btn-sm">读者登录</a>
+                <a th:href="@{/login?type=author}" class="btn btn-primary btn-sm">作者登录</a>
+            </th:block>
+        </div>
+    </div>
+</header>
+
+<!-- Footer Fragment (empty) -->
+<th:block th:fragment="footer"></th:block>
+
+</html>

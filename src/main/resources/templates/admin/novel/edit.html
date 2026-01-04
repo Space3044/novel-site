@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>编辑小说 - 管理后台</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <th:block th:replace="fragments/admin-layout :: styles"></th:block>
+</head>
+<body>
+    <div class="admin-layout">
+        <th:block th:replace="fragments/admin-layout :: sidebar"></th:block>
+
+        <div class="admin-main">
+            <header class="admin-header">
+                <h2>编辑小说</h2>
+                <div class="user-info">
+                    <a th:href="@{/admin/novel/list}" class="btn btn-default btn-sm">返回列表</a>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <div class="card" style="max-width: 800px;">
+                    <form th:action="@{/admin/novel/edit/{id}(id=${novel.id})}" method="post">
+                        <div class="form-group">
+                            <label>小说名称 *</label>
+                            <input type="text" name="name" class="form-control" required
+                                   th:value="${novel.name}" placeholder="请输入小说名称">
+                        </div>
+
+                        <div class="form-group">
+                            <label>分类 *</label>
+                            <select name="categoryId" class="form-control" required>
+                                <option th:each="cat : ${categories}"
+                                        th:value="${cat.id}"
+                                        th:text="${cat.name}"
+                                        th:selected="${cat.id == novel.categoryId}"></option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>状态 *</label>
+                            <select name="status" class="form-control" required>
+                                <option value="0" th:selected="${novel.status == 0}">连载中</option>
+                                <option value="1" th:selected="${novel.status == 1}">已完结</option>
+                                <option value="2" th:selected="${novel.status == 2}">暂停</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>封面图片</label>
+                            <div class="cover-upload-area" onclick="document.getElementById('coverFile').click()">
+                                <p>点击或拖拽上传封面图片</p>
+                                <p style="color: #999; font-size: 12px;">支持 JPG、PNG 格式，最大 10MB</p>
+                            </div>
+                            <input type="file" id="coverFile" accept="image/*" style="display: none;" onchange="uploadCover(this)">
+                            <input type="hidden" name="cover" id="coverUrl" th:value="${novel.cover}">
+                            <img id="coverPreview" class="cover-preview" alt="封面预览"
+                                 th:src="${novel.cover}" th:style="${novel.cover != null ? 'display:block' : 'display:none'}">
+                            <p style="margin-top: 5px; color: #999; font-size: 12px;">或输入图片URL：</p>
+                            <input type="text" id="coverUrlInput" class="form-control"
+                                   th:value="${novel.cover}" placeholder="https://example.com/cover.jpg"
+                                   onchange="previewCoverUrl(this.value)">
+                        </div>
+
+                        <div class="form-group">
+                            <label>小说简介</label>
+                            <textarea name="description" class="form-control" rows="5"
+                                      th:text="${novel.description}" placeholder="请输入小说简介"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">保存修改</button>
+                            <a th:href="@{/admin/novel/list}" class="btn btn-default">取消</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function uploadCover(input) {
+            if (input.files && input.files[0]) {
+                var formData = new FormData();
+                formData.append('file', input.files[0]);
+
+                fetch('/upload/image', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(data) {
+                    if (data.success) {
+                        document.getElementById('coverUrl').value = data.url;
+                        document.getElementById('coverUrlInput').value = data.url;
+                        document.getElementById('coverPreview').src = data.url;
+                        document.getElementById('coverPreview').style.display = 'block';
+                    } else {
+                        alert('上传失败: ' + data.message);
+                    }
+                })
+                .catch(function(error) {
+                    alert('上传失败: ' + error);
+                });
+            }
+        }
+
+        function previewCoverUrl(url) {
+            if (url) {
+                document.getElementById('coverUrl').value = url;
+                document.getElementById('coverPreview').src = url;
+                document.getElementById('coverPreview').style.display = 'block';
+            } else {
+                document.getElementById('coverPreview').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

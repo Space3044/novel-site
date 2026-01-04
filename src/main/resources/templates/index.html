@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>在线小说连载网站</title>
+    <link rel="stylesheet" th:href="@{/css/style.css?v=2}">
+</head>
+<body>
+    <th:block th:replace="fragments/layout :: header"></th:block>
+
+    <main class="main">
+        <div class="container">
+            <!-- 分类导航 -->
+            <div class="card">
+                <div class="category-tags">
+                    <a th:href="@{/novel/list}" class="category-tag">全部</a>
+                    <a th:each="cat : ${categories}"
+                       th:href="@{/novel/list(categoryId=${cat.id})}"
+                       th:text="${cat.name}"
+                       class="category-tag"></a>
+                </div>
+            </div>
+
+            <div class="layout-two-column">
+                <div class="layout-main">
+                    <!-- 最新更新 -->
+                    <div class="card">
+                        <h3 class="card-title">最新更新</h3>
+                        <div class="novel-grid">
+                            <div th:each="novel : ${latestNovels}" class="novel-item">
+                                <div class="novel-cover" th:if="${novel.cover == null or novel.cover == ''}">
+                                    <span th:text="${#strings.substring(novel.name, 0, 1)}"></span>
+                                </div>
+                                <img th:if="${novel.cover != null and novel.cover != ''}"
+                                     th:src="${novel.cover}" alt="封面" class="novel-cover-img">
+                                <div class="novel-info">
+                                    <a th:href="@{/novel/detail/{id}(id=${novel.id})}">
+                                        <h4 class="novel-title" th:text="${novel.name}"></h4>
+                                    </a>
+                                    <p class="novel-meta">
+                                        <span th:text="${novel.authorName}"></span> |
+                                        <span th:text="${novel.categoryName}"></span>
+                                    </p>
+                                    <p class="novel-meta">
+                                        <span th:class="${novel.status == 0 ? 'novel-status status-ongoing' : (novel.status == 1 ? 'novel-status status-completed' : 'novel-status status-paused')}"
+                                              th:text="${novel.status == 0 ? '连载中' : (novel.status == 1 ? '已完结' : '暂停')}"></span>
+                                    </p>
+                                    <div class="novel-stats">
+                                        <span th:text="'阅读 ' + ${novel.viewCount}"></span>
+                                        <span th:text="'投票 ' + ${novel.voteCount}"></span>
+                                        <span th:text="${novel.chapterCount} + ' 章'"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layout-side">
+                    <!-- 人气排行 -->
+                    <div class="card">
+                        <h3 class="card-title">人气排行</h3>
+                        <ul class="chapter-list">
+                            <li th:each="novel, stat : ${hotNovels}">
+                                <span>
+                                    <span class="chapter-order" th:text="${stat.index + 1}"></span>
+                                    <a th:href="@{/novel/detail/{id}(id=${novel.id})}" th:text="${novel.name}"></a>
+                                </span>
+                                <span class="novel-meta" th:text="'阅读 ' + ${novel.viewCount}"></span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- 投票排行 -->
+                    <div class="card">
+                        <h3 class="card-title">投票排行</h3>
+                        <ul class="chapter-list">
+                            <li th:each="novel, stat : ${topVoteNovels}">
+                                <span>
+                                    <span class="chapter-order" th:text="${stat.index + 1}"></span>
+                                    <a th:href="@{/novel/detail/{id}(id=${novel.id})}" th:text="${novel.name}"></a>
+                                </span>
+                                <span class="novel-meta" th:text="'票数 ' + ${novel.voteCount}"></span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script th:src="@{/js/main.js}"></script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小说列表 - 小说阅读网</title>
+    <link rel="stylesheet" th:href="@{/css/style.css?v=2}">
+</head>
+<body>
+    <th:block th:replace="fragments/layout :: header"></th:block>
+
+    <main class="main">
+        <div class="container">
+            <!-- 搜索和分类 -->
+            <div class="card">
+                <form th:action="@{/novel/list}" method="get" class="search-box">
+                    <input type="text" name="keyword" class="form-control"
+                           th:value="${keyword}" placeholder="搜索小说名或作者名...">
+                    <button type="submit" class="btn btn-primary">搜索</button>
+                </form>
+
+                <div class="category-tags">
+                    <a th:href="@{/novel/list}"
+                       th:class="${currentCategory == null and keyword == null} ? 'category-tag active' : 'category-tag'">全部</a>
+                    <a th:each="cat : ${categories}"
+                       th:href="@{/novel/list(categoryId=${cat.id})}"
+                       th:class="${currentCategory != null and currentCategory.id == cat.id} ? 'category-tag active' : 'category-tag'"
+                       th:text="${cat.name}"></a>
+                </div>
+            </div>
+
+            <!-- 小说列表 -->
+            <div class="card">
+                <h3 class="card-title">
+                    <th:block th:if="${keyword != null}">
+                        搜索结果：<span th:text="${keyword}"></span>
+                    </th:block>
+                    <th:block th:if="${currentCategory != null}">
+                        <span th:text="${currentCategory.name}"></span>
+                    </th:block>
+                    <th:block th:if="${keyword == null and currentCategory == null}">
+                        全部小说
+                    </th:block>
+                </h3>
+
+                <div th:if="${#lists.isEmpty(novels)}" style="text-align: center; padding: 40px; color: #999;">
+                    暂无小说
+                </div>
+
+                <div class="novel-grid">
+                    <div th:each="novel : ${novels}" class="novel-item">
+                        <div class="novel-cover" th:if="${novel.cover == null or novel.cover == ''}">
+                            <span th:text="${#strings.substring(novel.name, 0, 1)}"></span>
+                        </div>
+                        <img th:if="${novel.cover != null and novel.cover != ''}"
+                             th:src="${novel.cover}" alt="封面" class="novel-cover-img">
+                        <div class="novel-info">
+                            <a th:href="@{/novel/detail/{id}(id=${novel.id})}">
+                                <h4 class="novel-title" th:text="${novel.name}"></h4>
+                            </a>
+                            <p class="novel-meta">
+                                <span th:text="${novel.authorName}"></span> |
+                                <span th:text="${novel.categoryName}"></span>
+                            </p>
+                            <p class="novel-meta" th:if="${novel.description != null}"
+                               th:text="${#strings.abbreviate(novel.description, 50)}"></p>
+                            <p class="novel-meta">
+                                <span th:class="${novel.status == 0 ? 'novel-status status-ongoing' : (novel.status == 1 ? 'novel-status status-completed' : 'novel-status status-paused')}"
+                                      th:text="${novel.status == 0 ? '连载中' : (novel.status == 1 ? '已完结' : '暂停')}"></span>
+                            </p>
+                            <div class="novel-stats">
+                                <span th:text="'阅读 ' + ${novel.viewCount}"></span>
+                                <span th:text="'投票 ' + ${novel.voteCount}"></span>
+                                <span th:text="${novel.chapterCount} + ' 章'"></span>
+                                <span th:text="${novel.wordCount} + ' 字'"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script th:src="@{/js/main.js}"></script>
+</body>
+</html>

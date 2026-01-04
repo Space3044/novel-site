@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.novelsite.mapper.BookmarkMapper">
+
+    <resultMap id="BookmarkResultMap" type="Bookmark">
+        <id column="id" property="id"/>
+        <result column="reader_id" property="readerId"/>
+        <result column="novel_id" property="novelId"/>
+        <result column="create_time" property="createTime"/>
+        <association property="novel" javaType="Novel">
+            <id column="novel_id" property="id"/>
+            <result column="novel_name" property="name"/>
+            <result column="author_name" property="authorName"/>
+            <result column="novel_status" property="status"/>
+        </association>
+    </resultMap>
+
+    <select id="findById" resultMap="BookmarkResultMap">
+        SELECT b.*, n.name as novel_name, a.name as author_name, n.status as novel_status
+        FROM bookmark b
+        LEFT JOIN novel n ON b.novel_id = n.id
+        LEFT JOIN author a ON n.author_id = a.id
+        WHERE b.id = #{id}
+    </select>
+
+    <select id="findByReaderId" resultMap="BookmarkResultMap">
+        SELECT b.*, n.name as novel_name, a.name as author_name, n.status as novel_status
+        FROM bookmark b
+        LEFT JOIN novel n ON b.novel_id = n.id
+        LEFT JOIN author a ON n.author_id = a.id
+        WHERE b.reader_id = #{readerId}
+        ORDER BY b.create_time DESC
+    </select>
+
+    <select id="findByReaderAndNovel" resultMap="BookmarkResultMap">
+        SELECT * FROM bookmark WHERE reader_id = #{readerId} AND novel_id = #{novelId}
+    </select>
+
+    <insert id="insert">
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            SELECT last_insert_rowid()
+        </selectKey>
+        INSERT INTO bookmark (reader_id, novel_id, create_time)
+        VALUES (#{readerId}, #{novelId}, datetime('now'))
+    </insert>
+
+    <delete id="deleteById">
+        DELETE FROM bookmark WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByReaderAndNovel">
+        DELETE FROM bookmark WHERE reader_id = #{readerId} AND novel_id = #{novelId}
+    </delete>
+
+</mapper>

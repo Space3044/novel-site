@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>读者管理 - 管理后台</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <th:block th:replace="fragments/admin-layout :: styles"></th:block>
+</head>
+<body>
+    <div class="admin-layout">
+        <th:block th:replace="fragments/admin-layout :: sidebar"></th:block>
+
+        <div class="admin-main">
+            <header class="admin-header">
+                <h2>读者管理</h2>
+                <div class="user-info">
+                    <a th:href="@{/}" class="btn btn-default btn-sm">返回前台</a>
+                    <a th:href="@{/logout}" class="btn btn-default btn-sm">退出</a>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <div class="card">
+                    <h3 class="card-title">读者列表 (共 <span th:text="${#lists.size(readers)}"></span> 人)</h3>
+
+                    <div th:if="${#lists.isEmpty(readers)}" style="text-align: center; padding: 40px; color: #999;">
+                        暂无注册读者
+                    </div>
+
+                    <table th:if="${!#lists.isEmpty(readers)}" class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>用户名</th>
+                                <th>昵称</th>
+                                <th>邮箱</th>
+                                <th>注册时间</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="reader : ${readers}">
+                                <td th:text="${reader.id}"></td>
+                                <td th:text="${reader.username}"></td>
+                                <td th:text="${reader.nickname}"></td>
+                                <td th:text="${reader.email}"></td>
+                                <td th:text="${#temporals.format(reader.createTime, 'yyyy-MM-dd HH:mm')}"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

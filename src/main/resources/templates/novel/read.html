@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${chapter.title} + ' - ' + ${novel.name}">阅读</title>
+    <link rel="stylesheet" th:href="@{/css/style.css?v=2}">
+    <style>
+        .read-header {
+            background: #fff;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .read-header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body style="background: #f8f8f8;">
+    <div class="read-header">
+        <div class="container">
+            <div>
+                <a th:href="@{/novel/detail/{id}(id=${novel.id})}" th:text="${novel.name}"></a>
+                <span style="color: #999; margin: 0 10px;">></span>
+                <span th:text="'第' + ${chapter.chapterOrder} + '章 ' + ${chapter.title}"></span>
+            </div>
+            <div>
+                <a th:href="@{/novel/detail/{id}(id=${novel.id})}" class="btn btn-default btn-sm">返回目录</a>
+            </div>
+        </div>
+    </div>
+
+    <main class="main">
+        <div class="container" style="max-width: 800px;">
+            <div class="read-content">
+                <h2 style="text-align: center; margin-bottom: 30px;"
+                    th:text="'第' + ${chapter.chapterOrder} + '章 ' + ${chapter.title}"></h2>
+                <div th:utext="${#strings.replace(#strings.escapeXml(chapter.content), '&#10;', '&lt;/p&gt;&lt;p&gt;')}">
+                </div>
+            </div>
+
+            <div class="chapter-nav">
+                <div>
+                    <a th:if="${prevChapter != null}"
+                       th:href="@{/novel/read/{novelId}/{order}(novelId=${novel.id}, order=${prevChapter.chapterOrder})}"
+                       class="btn btn-default">上一章</a>
+                    <span th:if="${prevChapter == null}" class="btn btn-default" style="opacity: 0.5;">上一章</span>
+                </div>
+                <div>
+                    <a th:href="@{/novel/detail/{id}(id=${novel.id})}" class="btn btn-primary">目录</a>
+                </div>
+                <div>
+                    <a th:if="${nextChapter != null}"
+                       th:href="@{/novel/read/{novelId}/{order}(novelId=${novel.id}, order=${nextChapter.chapterOrder})}"
+                       class="btn btn-default">下一章</a>
+                    <span th:if="${nextChapter == null}" class="btn btn-default" style="opacity: 0.5;">下一章</span>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

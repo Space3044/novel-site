@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.novelsite.mapper.ReaderMapper">
+
+    <resultMap id="ReaderResultMap" type="Reader">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="nickname" property="nickname"/>
+        <result column="email" property="email"/>
+        <result column="avatar" property="avatar"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="findById" resultMap="ReaderResultMap">
+        SELECT * FROM reader WHERE id = #{id}
+    </select>
+
+    <select id="findByUsername" resultMap="ReaderResultMap">
+        SELECT * FROM reader WHERE username = #{username}
+    </select>
+
+    <select id="findAll" resultMap="ReaderResultMap">
+        SELECT * FROM reader ORDER BY create_time DESC
+    </select>
+
+
+    <insert id="insert">
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            SELECT last_insert_rowid()
+        </selectKey>
+        INSERT INTO reader (username, password, nickname, email, avatar, create_time, update_time)
+        VALUES (#{username}, #{password}, #{nickname}, #{email}, #{avatar}, datetime('now'), datetime('now'))
+    </insert>
+
+    <update id="update">
+        UPDATE reader SET
+            nickname = #{nickname},
+            email = #{email},
+            avatar = #{avatar},
+            update_time = datetime('now')
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM reader WHERE id = #{id}
+    </delete>
+
+</mapper>
